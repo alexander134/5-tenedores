@@ -9,7 +9,7 @@ export default function App() {
   //   firebase.auth().onAuthStateChanged(user =>{
   //     console.log(user)
   //   })
-  // }, [])
+  // }, [])alexander
   return (<Navigations/>);
 }
 
