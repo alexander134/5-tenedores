@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import {  StyleSheet,View,ScrollView,Text,Image} from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import ResgiterForm from "../../Components/Account/RegisterForm"
 export default function Register() {
     return(
-        <View>
+        <KeyboardAwareScrollView>
             <Image 
                 source={require("../../../assets/img/5tenedoresletrasiconologo.png")}
                 resizeMode="contain"   
@@ -12,7 +13,7 @@ export default function Register() {
             <View style={styles.viewForm} >
                 <ResgiterForm/>
             </View>
-        </View>
+        </KeyboardAwareScrollView>
     );
 }
 
