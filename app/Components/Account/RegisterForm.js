@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, View, Text } from "react-native";
 import {Input,Icon,Button} from "react-native-elements"
+import Loading from "../Loading";
 import {validateEmail} from "../../utils/validations"
 import {size,isEmpty} from "lodash"
+import * as firebase from "firebase";
+import {useNavigation} from "@react-navigation/native"
 
-export default function RegisterForm(){
-
+export default function RegisterForm(props){
+    const {toastRef}= props
     const [showPass, setShowPass] = useState(false)
     const [showPassRepit, setShowPassRepit] = useState(false)
     const [formData, setFormData] = useState(defaultFormValue())
+    const navigation = useNavigation();
+    const [loading, setloading] = useState(false)
     // console.log(formData)
 
     const onsubmit=()=>{
@@ -16,15 +21,28 @@ export default function RegisterForm(){
         // console.log(validateEmail(formData.email))
 
         if(isEmpty(formData.email)||isEmpty(formData.passwordRepit)||isEmpty(formData.password)){
-            console.log("todos los datos son obligatorios");
+            toastRef.current.show("todos los datos son obligatorios");
         }else if(!validateEmail(formData.email)){
-            console.log("mail invalido");
+            toastRef.current.show("mail invalido");
         }else if(formData.password!== formData.passwordRepit){
-            console.log("la contraseña debe ser igual");
+            toastRef.current.show("la contraseña debe ser igual");
         }else if(size(formData.password)<6){
-            console.log("la contraseña debe tener al menos 6 caracteres");
+            toastRef.current.show("la contraseña debe tener al menos 6 caracteres");
         }else{
-            console.log("ok");
+            toastRef.current.show("ok");
+            // firebase.auth()
+            setloading(true);
+            firebase.auth().createUserWithEmailAndPassword(formData.email,formData.password)
+            .then(response =>{
+                // console.log(response);
+                // toastRef.current.show("registro exitoso");
+                setloading(false);
+                navigation.navigate("account")
+            }).catch((err)=>{
+                // console.log(err);
+                setloading(false);
+                toastRef.current.show("el email ya esta en uso");
+            })
         }
     }
 
@@ -64,6 +82,7 @@ export default function RegisterForm(){
                 buttonStyle={styles.btnResgiter}
                 onPress={onsubmit}
                 />
+                <Loading isVisible={loading} text="Creando Cuenta" />
         </View>
         
     )
