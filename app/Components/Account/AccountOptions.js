@@ -5,6 +5,7 @@ import {map} from "lodash"
 import Modal from "../Modal"
 import ChangeDiplayNameForm from "./ChangeDisplayNameForm"
 import ChangeEmailForm from "./ChangeEmailForm"
+import ChangePasswordForm from "./ChangePasswordForm"
 
 export default function AccountOptions(props) {
     const {userInfo,toastRef,setRealoadUserInfo} = props;
@@ -33,7 +34,13 @@ export default function AccountOptions(props) {
                 setShowModal(true)
                 break;
             case "password":
-                setRenderComponent(<Text>cmabiando constraseña</Text>);
+                setRenderComponent(<ChangePasswordForm 
+                    
+                    // email={userInfo.email}
+                    setShowModal={setShowModal} 
+                    toastRef={toastRef}  
+                    setRealoadUserInfo={setRealoadUserInfo} 
+                />);
                 setShowModal(true)
                 break;
             default:
