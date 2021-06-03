@@ -1,9 +1,11 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import {StyleSheet, View, Text,ScrollView,Alert,Dimensions } from "react-native"
 import {Icon, Avatar,Image,Input,Button} from "react-native-elements"
 import {map,size, filter} from "lodash";
 import * as Permissions from "expo-permissions"
 import * as ImagePicker from "expo-image-picker"
+import * as Location from "expo-location";
+import MapView from "react-native-maps"
 import Modal from "../Modal"
 
 const widthScreen= Dimensions.get("window").width;
@@ -29,16 +31,51 @@ export default function AddRestautantForm(props) {
             <FormAdd setRestaurantName={setRestaurantName} setRestaurantAdress={setRestaurantAdress} setRestaurantDescription={setRestaurantDescription} setIsVisibleMap={setIsVisibleMap} />
             <UploadImage toastRef={toastRef} setImagesSelect={setImagesSelect} imagesSelect={imagesSelect}/>
             <Button title="Crear Restaurante" onPress={addRestautant} buttonStyle={style.btnAddRestaurant} />
-            <Map isVisibleMap={isVisibleMap} setIsVisibleMap={setIsVisibleMap} />
+            <Map isVisibleMap={isVisibleMap} setIsVisibleMap={setIsVisibleMap} toastRef={toastRef} />
         </ScrollView>
     )
 }
 
  function Map(props) {
-     const {isVisibleMap, setIsVisibleMap}= props
+     const {isVisibleMap, setIsVisibleMap,toastRef}= props
+     const [location, setLocation] = useState(null);
+    useEffect(() => {
+        (async ()=>{
+            const resultPermissionss= await Permissions.askAsync(
+                Permissions.LOCATION
+            )
+            const statusPermissions=resultPermissionss.permissions.location.status
+
+            if(statusPermissions!== "granted"){
+                toastRef.current.show("Es necesario aceptar los permisos de localizacion para crear un restaurante.",3000)
+            }else{
+                const loc= await Location.getCurrentPositionAsync({})
+                console.log(loc.coords.latitude);
+                console.log(loc.coords.longitude);
+                setLocation({
+                    latitude: loc.coords.latitude,
+                    longitude: loc.coords.longitude,
+                    latitudeDelta: 0.001,
+                    longitudeDelta: 0.001,
+                })
+            }
+        })()
+    }, [])
+
      return(
          <Modal isVisible={isVisibleMap} setIsVisible={setIsVisibleMap} >
-             <Text>modal</Text>
+             <View>
+                 {location && (
+                     <MapView style={style.mapStyle} initialRegion={location} showsUserLocation={true} onRegionChange={(region)=> setLocation(region)}>
+                         <MapView.Marker   coordinate={{
+                             latitude:location.latitude,
+                             longitude:location.longitude
+                         }}
+                         draggable
+                         />
+                     </MapView>
+                 )}
+             </View>
          </Modal>
      )
  }
@@ -183,6 +220,10 @@ const style =StyleSheet.create({
           alignItems:"center",
           height:200,
           marginBottom:20
+      },
+      mapStyle:{
+          width:"100%",
+          height:550
       }
 
 })
